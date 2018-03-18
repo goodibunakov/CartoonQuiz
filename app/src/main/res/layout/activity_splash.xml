@@ -79,7 +79,7 @@
             android:layout_gravity="center"
             android:adjustViewBounds="false"
             android:cropToPadding="false"
-            android:scaleType="centerInside"
+            android:scaleType="fitXY"
             android:src="@drawable/logo_level1" />
 
         <ImageView
