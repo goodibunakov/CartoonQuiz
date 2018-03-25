@@ -32,7 +32,7 @@
         android:clickable="true"
         android:focusable="true"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/btn_101_dalmatinec" />
+        app:srcCompat="@drawable/selector_101_dalmatinec" />
 
     <ImageView
         android:id="@+id/btn2"
