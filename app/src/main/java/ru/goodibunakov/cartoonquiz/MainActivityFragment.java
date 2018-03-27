@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 
 public class MainActivityFragment extends Fragment {
 
+    private static final String TAG = "CartoonQuiz Activity";
+    private static final int CARTOONS_IN_QUIZ = 10;
+
     public MainActivityFragment() {
         // Required empty public constructor
     }
