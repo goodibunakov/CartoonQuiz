@@ -111,6 +111,6 @@
         android:layout_height="1dp"
         android:orientation="horizontal"
         android:visibility="visible"
-        app:layout_constraintGuide_percent="0.5" />
+        app:layout_constraintGuide_percent="0.55" />
 
 </android.support.constraint.ConstraintLayout>
