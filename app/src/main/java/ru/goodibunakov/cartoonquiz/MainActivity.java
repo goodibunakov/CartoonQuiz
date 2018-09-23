@@ -8,14 +8,20 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity {
+
+    @BindView(R.id.main_rays)
+    ImageView rays;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        ImageView rays = findViewById(R.id.main_rays);
         Animation animationRotateCenter = AnimationUtils.loadAnimation(
                 this, R.anim.rotate_center);
         rays.startAnimation(animationRotateCenter);
