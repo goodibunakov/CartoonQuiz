@@ -1,4 +1,4 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,12 +7,13 @@
     tools:context="ru.goodibunakov.cartoonquiz.MainActivityFragment"
     tools:ignore="ContentDescription">
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.2" />
+        app:layout_constraintGuide_percent="0.2"
+        tools:ignore="MissingConstraints" />
 
     <ImageView
         android:id="@+id/question_number"
@@ -105,12 +106,13 @@
 
     </LinearLayout>
 
-    <android.support.constraint.Guideline
+    <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:orientation="horizontal"
         android:visibility="visible"
-        app:layout_constraintGuide_percent="0.55" />
+        app:layout_constraintGuide_percent="0.55"
+        tools:ignore="MissingConstraints" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
