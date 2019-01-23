@@ -18,18 +18,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/main_up" />
 
-    <ImageView
-        android:id="@+id/main_rays"
-        android:layout_width="140dp"
-        android:layout_height="140dp"
-        android:adjustViewBounds="true"
-        android:cropToPadding="false"
-        android:scaleType="fitXY"
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/logo_small"
-        app:srcCompat="@drawable/main_rays" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/main_rays"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="-20dp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/main_rays" />
+    </FrameLayout>
 
     <FrameLayout
         android:id="@+id/logo_small"
@@ -90,10 +94,10 @@
 
     <include
         layout="@layout/content_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_height="match_parent"
-        android:layout_width="match_parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
