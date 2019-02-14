@@ -41,5 +41,4 @@ public class MainActivityFragment extends Fragment {
         super.onDestroyView();
         unbinder.unbind();
     }
-
 }

@@ -1,11 +1,15 @@
 package ru.goodibunakov.cartoonquiz;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+
+import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
@@ -25,6 +29,11 @@ public class MainActivity extends AppCompatActivity {
         Animation animationRotateCenter = AnimationUtils.loadAnimation(
                 this, R.anim.rotate_center);
         rays.startAnimation(animationRotateCenter);
+        rays.setOnClickListener(v -> {
+            GameComplitedDialog gameComplitedDialog = new GameComplitedDialog(MainActivity.this);
+            Objects.requireNonNull(gameComplitedDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            gameComplitedDialog.show();
+        });
     }
 
     @Override
