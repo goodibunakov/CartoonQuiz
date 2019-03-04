@@ -17,6 +17,8 @@ public class GameComplitedDialog extends Dialog implements View.OnClickListener 
 
     @BindView(R.id.dia4)
     ImageView dia4;
+    @BindView(R.id.dia2)
+    ImageView dia2;
 
     private Context context;
 
@@ -28,22 +30,22 @@ public class GameComplitedDialog extends Dialog implements View.OnClickListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.game_complited_dialog);
         ButterKnife.bind(this);
+        dia2.setImageResource(R.drawable.dia2_3);
         setCancelable(false);
-        dia4.setOnClickListener(this);
     }
 
-    @OnClick
+//    @OnClick (R.id.dia4button)
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.dia4:
-                Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show();
-                break;
-            default:
-                break;
-        }
-        dismiss();
+//        switch (v.getId()) {
+//            case R.id.dia4button:
+//                Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show();
+//                break;
+//            default:
+//                break;
+//        }
+//        dismiss();
     }
 }

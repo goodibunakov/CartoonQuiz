@@ -29,11 +29,6 @@ public class MainActivity extends AppCompatActivity {
         Animation animationRotateCenter = AnimationUtils.loadAnimation(
                 this, R.anim.rotate_center);
         rays.startAnimation(animationRotateCenter);
-        rays.setOnClickListener(v -> {
-            GameComplitedDialog gameComplitedDialog = new GameComplitedDialog(MainActivity.this);
-            Objects.requireNonNull(gameComplitedDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            gameComplitedDialog.show();
-        });
     }
 
     @Override
@@ -42,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
         MainActivityFragment quizFragment = (MainActivityFragment)
                 getSupportFragmentManager().findFragmentById(
                         R.id.quizFragment);
+        if (quizFragment != null) {
+            quizFragment.resetQuiz();
+        }
     }
 
     @Override
@@ -79,5 +77,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+    @Override
+    public void onBackPressed() {
     }
 }

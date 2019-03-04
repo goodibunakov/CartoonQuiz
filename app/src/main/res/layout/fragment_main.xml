@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/quiz_relative_layout"
     tools:context="ru.goodibunakov.cartoonquiz.MainActivityFragment">
 
     <ImageView
@@ -14,7 +15,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginTop="130dp"
-        app:srcCompat="@drawable/q10" />
+        tools:srcCompat="@drawable/q10" />
 
     <ImageView
         android:id="@+id/cartoon_image"
@@ -32,7 +33,7 @@
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:scaleType="fitCenter"
-        app:srcCompat="@drawable/dambo002" />
+        tools:srcCompat="@drawable/logo_level5" />
 
     <LinearLayout
         android:id="@+id/layoutButtons"
@@ -53,40 +54,40 @@
             android:clickable="true"
             android:focusable="true"
             android:scaleType="fitCenter"
-            app:srcCompat="@drawable/selector_101_dalmatinec" />
+            tools:srcCompat="@drawable/selector_101_dalmatinec" />
 
         <ImageView
             android:id="@+id/btn2"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height_btn"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/btn_start" />
+            tools:src="@drawable/btn_start" />
 
         <ImageView
             android:id="@+id/btn4"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height_btn"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/btn_start" />
+            tools:src="@drawable/btn_start" />
 
         <ImageView
             android:id="@+id/btn3"
             android:layout_width="match_parent"
             android:layout_height="@dimen/height_btn"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="fitCenter"
-            android:src="@drawable/btn_start" />
+            tools:src="@drawable/btn_start" />
 
     </LinearLayout>
 

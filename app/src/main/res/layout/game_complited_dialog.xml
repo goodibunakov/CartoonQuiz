@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -10,55 +11,66 @@
         android:adjustViewBounds="true"
         android:src="@drawable/dia1" />
 
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
     <ImageView
+        android:id="@+id/dia2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:src="@drawable/dia2" />
+        tools:src="@drawable/dia2_3" />
 
-        <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ваши очки"
-        android:fontFamily="sans-serif-black"
-        android:textSize="20sp"
-        android:shadowRadius="10"
-        android:layout_gravity="bottom|center"
-        android:layout_marginBottom="70dp"
-        android:textColor="@android:color/white"/>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginBottom="70dp"-->
+            <!--android:fontFamily="sans-serif-black"-->
+            <!--android:shadowRadius="10"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="20sp"-->
+            <!--tools:text="Ваши очки" />-->
+
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"-->
+            <!--android:layout_marginBottom="20dp"-->
+            <!--android:fontFamily="sans-serif-black"-->
+            <!--android:textColor="@android:color/white"-->
+            <!--android:textSize="40sp"-->
+            <!--tools:text="Ваши очки" />-->
+
+
+        <ImageView
+            android:id="@+id/dia3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ваши очки"
-            android:fontFamily="sans-serif-black"
-            android:textSize="40sp"
-            android:layout_gravity="bottom|center"
-            android:layout_marginBottom="20dp"
-            android:textColor="@android:color/white"/>
+            android:adjustViewBounds="true"
+            android:src="@drawable/dia3" />
     </FrameLayout>
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <ImageView
-        android:id="@+id/dia3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"
-        android:src="@drawable/dia3" />
 
         <ImageView
             android:id="@+id/dia4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="top|center"
             android:adjustViewBounds="true"
-            android:layout_gravity="bottom|center"
             android:src="@drawable/dia4" />
+
+        <!--<ImageView-->
+            <!--android:id="@+id/dia4button"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center_horizontal"-->
+            <!--android:adjustViewBounds="true"-->
+            <!--android:src="@drawable/dia4button" />-->
     </FrameLayout>
 
 </LinearLayout>
