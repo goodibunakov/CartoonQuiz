@@ -1,15 +1,11 @@
 package ru.goodibunakov.cartoonquiz;
 
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-
-import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
@@ -37,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         MainActivityFragment quizFragment = (MainActivityFragment)
                 getSupportFragmentManager().findFragmentById(
                         R.id.quizFragment);
-        if (quizFragment != null) {
+        if (quizFragment != null && quizFragment.getTotalGuesses() == 0) {
             quizFragment.resetQuiz();
         }
     }

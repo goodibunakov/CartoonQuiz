@@ -3,10 +3,14 @@ package ru.goodibunakov.cartoonquiz;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -14,11 +18,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -38,17 +44,16 @@ import butterknife.OnClick;
 import butterknife.Unbinder;
 
 
-public class MainActivityFragment extends Fragment {
+public class MainActivityFragment extends Fragment implements LoadingTaskFinishedListener {
 
     private static final String TAG = "CartoonQuiz Activity";
     private static final int CARTOONS_IN_QUIZ = 10;
 
     private Unbinder unbinder;
 
-    private List<String> fileNameList;
-    private List<String> quizCountriesList;
-    private List<String> quizRegionsList;
-    private Set<String> regionsSet;
+    private static List<String> fileNameList;
+    private static List<String> quizCountriesList;
+    private static List<String> quizRegionsList;
     private int correctAnswers;
     private String correctAnswer;
     private int totalGuesses;
@@ -79,13 +84,6 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        regionsSet = new HashSet<>(Arrays.asList(Objects.requireNonNull(getActivity()).getResources().getStringArray(R.array.regions_list)));
-    }
-
-    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
@@ -111,49 +109,20 @@ public class MainActivityFragment extends Fragment {
     }
 
     void resetQuiz() {
-        AssetManager assets = Objects.requireNonNull(getActivity()).getAssets();
         fileNameList.clear();
-        try {
-            for (String region : regionsSet) {
-                String[] paths = assets.list(region);
-
-                if (paths != null) {
-                    for (String path : paths) {
-                        fileNameList.add(path.replace(".png", ""));
-                    }
-                }
-            }
-
-        } catch (IOException e) {
-            Log.e(TAG, "Ошибка получения имен файлов", e);
-        }
-
         correctAnswers = 0;
         totalGuesses = 0;
         quizCountriesList.clear();
         quizRegionsList.clear();
         buttonsImage.clear();
+        new ImagesForQuiz(getActivity(), MainActivityFragment.this).execute();
+    }
 
-        int flagCounter = 1;
-        int flagCount = fileNameList.size();
-        Log.d("debug", "flagCount " + flagCount);
-        while (flagCounter <= CARTOONS_IN_QUIZ) {
-            int randomIndex = random.nextInt(flagCount);
-            Log.d("debug", "randomIndex " + randomIndex);
-            Log.d("debug", "flagCounter " + flagCounter);
+    private void initArrays(Result result){
+        fileNameList = result.fileNameListBackground;
+        quizCountriesList = result.quizCountriesListBackground;
+        quizRegionsList = result.quizRegionsListBackground;
 
-            String fileName = fileNameList.get(randomIndex);
-            String quizRegion = String.valueOf(fileName.subSequence(0, fileName.lastIndexOf('-')));
-            if (!quizRegionsList.contains(quizRegion)) {
-                quizCountriesList.add(fileName);
-                quizRegionsList.add(quizRegion);
-                ++flagCounter;
-            }
-        }
-
-        for (int i = 0; i < quizCountriesList.size(); i++) {
-            Log.d("debug", i + " " + quizCountriesList.get(i));
-        }
         loadNextFlag();
     }
 
@@ -219,29 +188,28 @@ public class MainActivityFragment extends Fragment {
         int k = 0;
         while (customButtonsName.size() <= 3) {
             String customButtonName = fileNameList.get(random.nextInt(fileNameList.size()));
-            if (customButtonsName.contains(customButtonName) || customButtonName.contentEquals(correctAnswer.subSequence(0, correctAnswer.lastIndexOf('-'))))
-                continue;
-            customButtonsName.add(customButtonName);
-            customButtonName = fileNameList.get(random.nextInt(fileNameList.size()));
 
             int lastIndex = customButtonName.lastIndexOf('-');
             String nameButton = customButtonName.substring(0, lastIndex);
+
+            if (customButtonsName.contains(nameButton) || nameButton.contains(correctAnswer.substring(0, correctAnswer.lastIndexOf('-')))) {
+                continue;
+            }
+
+
+            customButtonsName.add(nameButton);
             String customButtonSelector = "selector_" + nameButton.toLowerCase();
             ImageView imageView = buttons.get(k);
             int imageResource = getResId(customButtonSelector);
             imageView.setImageResource(imageResource);
             buttonsImage.put(imageView, nameButton);
             k++;
-            Log.d("debug", "customButtonSelector = " + customButtonSelector);
-            Log.d("debug", "getResId = " + getResId(customButtonSelector));
         }
 
         int correctAnswerButtonNumber = random.nextInt(4);
         int lastIndex = correctAnswer.lastIndexOf('-');
         String nameButtonCorrect = correctAnswer.substring(0, lastIndex);
         String correctButtonSelector = "selector_" + nameButtonCorrect.toLowerCase();
-        Log.d("debug", "correctAnswer " + correctAnswer);
-        Log.d("debug", "correctButtonSelector " + correctButtonSelector);
         int imageResourceCorrect = getResId(correctButtonSelector);
         ImageView imageViewCorrect = buttons.get(correctAnswerButtonNumber);
         imageViewCorrect.setImageResource(imageResourceCorrect);
@@ -303,6 +271,10 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    int getTotalGuesses() {
+        return totalGuesses;
+    }
+
     @OnClick({R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4})
     void onClick(View view) {
         ImageView imageView = (ImageView) view;
@@ -322,9 +294,35 @@ public class MainActivityFragment extends Fragment {
                 disableButtons();
 
                 if (correctAnswers == CARTOONS_IN_QUIZ) {
-                    GameComplitedDialog gameComplitedDialog = new GameComplitedDialog(Objects.requireNonNull(getActivity()));
-                    Objects.requireNonNull(gameComplitedDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    gameComplitedDialog.show();
+//                    GameComplitedDialog gameComplitedDialog = new GameComplitedDialog(Objects.requireNonNull(getActivity()));
+//                    Objects.requireNonNull(gameComplitedDialog.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//
+//                    gameComplitedDialog.show();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Игра закончена")
+                            .setMessage("ура блин")
+                            .setCancelable(false)
+                    .setPositiveButton("Заново", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            totalGuesses = 0;
+                            resetQuiz();
+                        }
+                    });
+                    AlertDialog alert = builder.create();
+                    //Set the dialog to not focusable (makes navigation ignore us adding the window)
+                    Objects.requireNonNull(alert.getWindow()).setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
+//Show the dialog!
+                    alert.show();
+
+//Set the dialog to immersive
+                    alert.getWindow().getDecorView().setSystemUiVisibility(
+                            Objects.requireNonNull(getActivity()).getWindow().getDecorView().getSystemUiVisibility());
+
+//Clear the not focusable flag from the window
+                    alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+//                    alert.show();
                 } else {
                     handler.postDelayed(
                             () -> animate(true), 1200);
@@ -334,4 +332,121 @@ public class MainActivityFragment extends Fragment {
                 imageView.setEnabled(false); // disable incorrect answer
             }
         }
-    }}
+
+
+    }
+
+
+
+
+    private static class ImagesForQuiz extends AsyncTask<Void, Void, Result> {
+
+
+        private final WeakReference<Activity> weakActivity;
+        private final LoadingTaskFinishedListener finishedListener;
+        private AlertDialog alert;
+
+        ImagesForQuiz(Activity activity, LoadingTaskFinishedListener finishedListener) {
+            weakActivity = new WeakReference<>(activity);
+            this.finishedListener = finishedListener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Activity activity = weakActivity.get();
+            if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("Загружаем игру")
+                    .setMessage("готовимся...")
+                    .setCancelable(false);
+            alert = builder.create();
+//            AlertDialog alert = builder.create();
+//            Set the dialog to not focusable (makes navigation ignore us adding the window)
+            Objects.requireNonNull(alert.getWindow()).setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+
+//Show the dialog!
+            alert.show();
+
+//Set the dialog to immersive
+            alert.getWindow().getDecorView().setSystemUiVisibility(
+                    Objects.requireNonNull(weakActivity.get()).getWindow().getDecorView().getSystemUiVisibility());
+
+//Clear the not focusable flag from the window
+            alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+            alert.show();
+        }
+
+        @Override
+        protected void onPostExecute(Result result) {
+            super.onPostExecute(result);
+            Activity activity = weakActivity.get();
+            if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
+            if (alert != null) alert.dismiss();
+            finishedListener.onTaskFinished(result);
+        }
+
+        @Override
+        protected Result doInBackground(Void... voids) {
+            List<String> fileNameListBackground = new ArrayList<>();
+            List<String> quizCountriesListBackground = new ArrayList<>();
+            List<String> quizRegionsListBackground = new ArrayList<>();
+
+            Set<String> regionsSet = new HashSet<>(Arrays.asList(Objects.requireNonNull(weakActivity.get()).getResources().getStringArray(R.array.regions_list)));
+
+            AssetManager assets = Objects.requireNonNull(weakActivity.get()).getAssets();
+
+            try {
+                for (String region : regionsSet) {
+                    String[] paths = assets.list(region);
+
+                    if (paths != null) {
+                        for (String path : paths) {
+                            fileNameListBackground.add(path.replace(".png", ""));
+                        }
+                    }
+                }
+
+            } catch (IOException e) {
+                Log.e(TAG, "Ошибка получения имен файлов", e);
+            }
+
+            int flagCounter = 1;
+            int flagCount = fileNameListBackground.size();
+            Log.d("debug", "flagCount " + flagCount);
+            SecureRandom random = new SecureRandom();
+            while (flagCounter <= CARTOONS_IN_QUIZ) {
+                int randomIndex = random.nextInt(flagCount);
+                String fileName = fileNameListBackground.get(randomIndex);
+                String quizRegion = String.valueOf(fileName.subSequence(0, fileName.lastIndexOf('-')));
+                if (!quizRegionsListBackground.contains(quizRegion)) {
+                    quizCountriesListBackground.add(fileName);
+                    quizRegionsListBackground.add(quizRegion);
+                    ++flagCounter;
+                }
+            }
+            return new Result(fileNameListBackground, quizCountriesListBackground, quizRegionsListBackground);
+        }
+    }
+
+    static class Result {
+        List<String> fileNameListBackground;
+        List<String> quizCountriesListBackground;
+        List<String> quizRegionsListBackground;
+
+        Result(List<String> fileNameListBackground, List<String> quizCountriesListBackground, List<String> quizRegionsListBackground) {
+            this.fileNameListBackground = fileNameListBackground;
+            this.quizCountriesListBackground = quizCountriesListBackground;
+            this.quizRegionsListBackground = quizRegionsListBackground;
+        }
+    }
+
+    @Override
+    public void onTaskFinished(Result result) {
+        initArrays(result);
+    }
+}
