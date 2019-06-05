@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">CartoonQuiz</string>
-    <string name="avtor">Евгений GooDi Бунаков</string>
+    <string name="app_name">Угадай мультик</string>
+    <string name="avtor">Игра для Бады</string>
     <string name="version">Версия 1.0</string>
 
 

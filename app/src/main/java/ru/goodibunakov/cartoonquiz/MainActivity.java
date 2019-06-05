@@ -1,11 +1,15 @@
 package ru.goodibunakov.cartoonquiz;
 
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+
+import java.util.Random;
 
 import androidx.appcompat.app.AppCompatActivity;
 import butterknife.BindView;
@@ -16,6 +20,10 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.main_rays)
     ImageView rays;
 
+    MediaPlayer mp;
+    Random random;
+    int res;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,17 +33,17 @@ public class MainActivity extends AppCompatActivity {
         Animation animationRotateCenter = AnimationUtils.loadAnimation(
                 this, R.anim.rotate_center);
         rays.startAnimation(animationRotateCenter);
+
+        random = new Random();
+        res = random.nextInt(7);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        MainActivityFragment quizFragment = (MainActivityFragment)
-                getSupportFragmentManager().findFragmentById(
-                        R.id.quizFragment);
-        if (quizFragment != null && quizFragment.getTotalGuesses() == 0) {
-            quizFragment.resetQuiz();
-        }
+//        MainActivityFragment quizFragment = (MainActivityFragment)
+//                getSupportFragmentManager().findFragmentById(
+//                        R.id.quizFragment);
     }
 
     @Override
@@ -43,6 +51,35 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         final View decorView = getWindow().getDecorView();
         hideSystemUI(decorView);
+
+        if (mp == null) {
+            switch (res) {
+                case 0:
+                    mp = MediaPlayer.create(this, R.raw.chillgameloop);
+                    break;
+                case 1:
+                    mp = MediaPlayer.create(this, R.raw.coolgamethemeloop);
+                    break;
+                case 2:
+                    mp = MediaPlayer.create(this, R.raw.dailyspecialshort);
+                    break;
+                case 3:
+                    mp = MediaPlayer.create(this, R.raw.dolphinrideshort);
+                    break;
+                case 4:
+                    mp = MediaPlayer.create(this, R.raw.followmeshort);
+                    break;
+                case 5:
+                    mp = MediaPlayer.create(this, R.raw.petparkshort);
+                    break;
+                default:
+                    mp = MediaPlayer.create(this, R.raw.pinballthreeshort);
+                    break;
+            }
+            mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mp.setLooping(true);
+            mp.start();
+        }
     }
 
     // This snippet hides the system bars.
@@ -73,6 +110,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mp != null) {
+            mp.stop();
+            mp.release();
+            mp = null;
+        }
     }
 
     @Override

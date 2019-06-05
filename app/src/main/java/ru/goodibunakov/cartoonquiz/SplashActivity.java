@@ -54,16 +54,11 @@ public class SplashActivity extends AppCompatActivity {
         logo4.startAnimation(animationBounce3);
         logo5.startAnimation(animationBounce2);
 
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent start = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(start);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            }
+        btnStart.setOnClickListener(view -> {
+            Intent start = new Intent(SplashActivity.this, MainActivity.class);
+            startActivity(start);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
-
-
     }
 
     @Override
