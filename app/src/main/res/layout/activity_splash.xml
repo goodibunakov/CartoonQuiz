@@ -28,9 +28,9 @@
 
     <ImageView
         android:id="@+id/iv_btn_start"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="90dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="60dp"
         app:layout_constraintBottom_toBottomOf="@id/iv_splash_bottom"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

@@ -1,9 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/quiz_relative_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/quiz_relative_layout"
     tools:context="ru.goodibunakov.cartoonquiz.MainActivityFragment">
 
     <ImageView
@@ -31,8 +31,8 @@
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:scaleType="fitCenter"
-        tools:srcCompat="@drawable/logo_level5"
-        tools:ignore="RtlHardcoded" />
+        tools:ignore="RtlHardcoded"
+        tools:srcCompat="@drawable/logo_level5" />
 
     <LinearLayout
         android:id="@+id/layoutButtons"
@@ -40,54 +40,137 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="8dp"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/btn1"
+        <FrameLayout
+            android:id="@+id/btn1_layout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/height_btn"
-            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
             android:clickable="true"
-            android:focusable="true"
-            android:scaleType="fitCenter"
-            tools:srcCompat="@drawable/btn_enabled__101_dalmatinec" />
+            android:focusable="true">
 
-        <ImageView
-            android:id="@+id/btn2"
+            <ImageView
+                android:id="@+id/btn1"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height_btn"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/btn_selector"
+                tools:ignore="ContentDescription"
+                tools:srcCompat="@drawable/btn_selector"/>
+
+            <TextView
+                android:id="@+id/btn1_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:fontFamily="@font/kabelbold"
+                android:text="КОРОЛЬ ЛЕВ"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                tools:text="Король лев"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btn2_layout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/height_btn"
-            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:clickable="true"
-            android:focusable="true"
-            android:scaleType="fitCenter"
-            tools:src="@drawable/btn_start" />
+            android:focusable="true">
 
-        <ImageView
-            android:id="@+id/btn4"
+            <ImageView
+                android:id="@+id/btn2"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height_btn"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/btn_selector"
+                tools:ignore="ContentDescription"
+                tools:srcCompat="@drawable/btn_selector"/>
+
+            <TextView
+                android:id="@+id/btn2_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:fontFamily="@font/kabelbold"
+                android:text="КОРОЛЬ ЛЕВ"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                tools:text="Король лев"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btn4_layout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/height_btn"
-            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:clickable="true"
-            android:focusable="true"
-            android:scaleType="fitCenter"
-            tools:src="@drawable/btn_start" />
+            android:focusable="true">
 
-        <ImageView
-            android:id="@+id/btn3"
+            <ImageView
+                android:id="@+id/btn4"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height_btn"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/btn_selector"
+                tools:ignore="ContentDescription"
+                tools:srcCompat="@drawable/btn_selector"/>
+
+            <TextView
+                android:id="@+id/btn4_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:fontFamily="@font/kabelbold"
+                android:text="КОРОЛЬ ЛЕВ"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                tools:text="Король лев"/>
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/btn3_layout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/height_btn"
-            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:clickable="true"
-            android:focusable="true"
-            android:scaleType="fitCenter"
-            tools:src="@drawable/btn_start" />
+            android:focusable="true">
 
+            <ImageView
+                android:id="@+id/btn3"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/height_btn"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/btn_selector"
+                tools:ignore="ContentDescription"
+                tools:srcCompat="@drawable/btn_selector"/>
+
+            <TextView
+                android:id="@+id/btn3_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="4dp"
+                android:fontFamily="@font/kabelbold"
+                android:text="КОРОЛЬ ЛЕВ"
+                android:textAllCaps="true"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                tools:text="Король лев"/>
+        </FrameLayout>
     </LinearLayout>
 
 </RelativeLayout>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-   <string-array name="regions_list">
+   <string-array name="cartoons_list">
       <item>101_dalmatinec</item>
       <item>aladdin</item>
       <item>alisa_v_strane_chudes</item>
@@ -21,6 +21,86 @@
       <item>golovolomka</item>
       <item>gorbun_iz_notrdama</item>
       <item>gorod_geroev</item>
+      <item>gubka_bob</item>
+      <item>holodnoe_serdce</item>
+      <item>horoshyi_dinozavr</item>
+      <item>hrabraya_serdcem</item>
+      <item>istoriya_igrushek</item>
+      <item>kak_lev_i_cherepaha_peli_pesnu</item>
+      <item>kak_priruchit_drakona</item>
+      <item>klub_vinks</item>
+      <item>kniga_djungley</item>
+      <item>korol_lev</item>
+      <item>korporaciya_monstrov</item>
+      <item>kotenok_po_imeni_gav</item>
+      <item>krasavica_i_chudovice</item>
+      <item>kroshka_enot</item>
+      <item>kung_fu_panda</item>
+      <item>ledi_i_brodyaga</item>
+      <item>lednikovyi_period</item>
+      <item>luntik</item>
+      <item>madagaskar</item>
+      <item>malysh_i_karlson</item>
+      <item>malyshariki</item>
+      <item>mama_dlya_mamontenka</item>
+      <item>masha_i_medved</item>
+      <item>moana</item>
+      <item>moidodyr</item>
+      <item>neznayka_na_lune</item>
+      <item>novye_priklucheniya_vinni_puha</item>
+      <item>nu_pogodi</item>
+      <item>ostrov_sokrovish</item>
+      <item>pinokkio</item>
+      <item>piter_pen</item>
+      <item>po_doroge_s_oblakami</item>
+      <item>priklucheniya_chipollino</item>
+      <item>priklucheniya_kapitana_vrungelya</item>
+      <item>priklucheniya_kota_leopolda</item>
+      <item>priklucheniya_porosenka_funtika</item>
+      <item>prostokvashino</item>
+      <item>rapuncel</item>
+      <item>ratatui</item>
+      <item>rio</item>
+      <item>rusalochka</item>
+      <item>shrek</item>
+      <item>smeshariki</item>
+      <item>smurfiki</item>
+      <item>svinka_peppa</item>
+      <item>tachki</item>
+      <item>tarzan</item>
+      <item>taynaya_jizn_domashnih_givotnyh</item>
+      <item>tom_i_jerry</item>
+      <item>tri_bogatyrya</item>
+      <item>tryam_zdravstvuite</item>
+      <item>valli</item>
+      <item>vinni_puh</item>
+      <item>vovka_v_39_carstve</item>
+      <item>vozvrachenie_bludnogo_popugaya</item>
+      <item>vverh</item>
+      <item>zolushka</item>
+      <item>zveropolis</item>
+   </string-array>
+
+   <string-array name="cartoons_text_list">
+      <item name="101">101 далматинец</item>
+      <item>аладдин</item>
+      <item>алиса в стране чудес</item>
+      <item>angry birds в кино</item>
+      <item>бэмби</item>
+      <item>белоснежка и 7 гномов</item>
+      <item>братец медведь</item>
+      <item>бременские музыканты</item>
+      <item>чебурашка и крокодил гена</item>
+      <item>щенячий патруль</item>
+      <item>чип и дейл спешат на помощь</item>
+      <item>дамбо</item>
+      <item>фердинанд</item>
+      <item>фиксики</item>
+      <item>гадкий я</item>
+      <item>геркулес</item>
+      <item>головоломка</item>
+      <item>Горбун из Нотр-Дама</item>
+      <item>город героев</item>
       <item>gubka_bob</item>
       <item>holodnoe_serdce</item>
       <item>horoshyi_dinozavr</item>

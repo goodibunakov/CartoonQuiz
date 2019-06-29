@@ -1,8 +1,8 @@
 package ru.goodibunakov.cartoonquiz;
 
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -17,19 +17,31 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.transition.Explode;
+import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -41,11 +53,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnTouch;
 import butterknife.Unbinder;
 
 import static android.content.Context.AUDIO_SERVICE;
@@ -53,42 +64,52 @@ import static android.content.Context.AUDIO_SERVICE;
 
 public class MainActivityFragment extends Fragment implements LoadingTaskFinishedListener {
 
-    private static final String TAG = "CartoonQuiz Activity";
+    private static final String TAG = "cartoon";
     private static final int CARTOONS_IN_QUIZ = 10;
 
     private Unbinder unbinder;
 
     private static ArrayList<String> fileNameList;
-    private static List<String> quizCountriesList;
-    private static List<String> quizRegionsList;
+    private static List<String> quizCartoonsList;
+    private static List<String> quizCartoonsFoldersList;
     private int correctAnswers;
     private String correctAnswer;
     private int totalGuesses;
     private SecureRandom random;
     private Handler handler;
-    private List<ImageView> buttons;
+    private List<TextView> buttons;
     private List<String> customButtonsName;
-    private HashMap<ImageView, String> buttonsImage;
+    private HashMap<TextView, String> buttonsText;
     private SoundPool soundPool;
     private int soundIDYes, soundIDNo;
     private boolean loaded = false;
     private float volume;
     private final int MAX_STREAMS = 5;
-    Bundle bundle;
-    String multFolder;
+    private Bundle bundle;
+    private String multFolder;
+
+    private Animation in, out;
 
     @BindView(R.id.question_number)
     ImageView questionNumber;
     @BindView(R.id.cartoon_image)
     ImageView cartoonImage;
-    @BindView(R.id.btn1)
-    ImageView btn1;
-    @BindView(R.id.btn2)
-    ImageView btn2;
-    @BindView(R.id.btn3)
-    ImageView btn3;
-    @BindView(R.id.btn4)
-    ImageView btn4;
+    @BindView(R.id.btn1_text)
+    TextView btn1;
+    @BindView(R.id.btn2_text)
+    TextView btn2;
+    @BindView(R.id.btn3_text)
+    TextView btn3;
+    @BindView(R.id.btn4_text)
+    TextView btn4;
+    @BindView(R.id.btn1_layout)
+    FrameLayout btn1_layout;
+    @BindView(R.id.btn2_layout)
+    FrameLayout btn2_layout;
+    @BindView(R.id.btn3_layout)
+    FrameLayout btn3_layout;
+    @BindView(R.id.btn4_layout)
+    FrameLayout btn4_layout;
     @BindView(R.id.quiz_relative_layout)
     RelativeLayout relativeLayout;
 
@@ -98,14 +119,22 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        in = AnimationUtils.loadAnimation(getContext(), R.anim.zoom_in);
+        out = AnimationUtils.loadAnimation(getContext(), R.anim.zoom_out);
+
+    }
+
+    @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("correctAnswer", correctAnswer);
-        outState.putInt("correctAnswers", correctAnswers);
-        outState.putString("multFolder", multFolder);
-        outState.putStringArrayList("fileNameList", fileNameList);
-        outState.putInt("btn1_drawable", (Integer) btn1.getTag());
-        outState.putIntArray("btn1_state", btn1.getDrawableState());
+//        outState.putString("correctAnswer", correctAnswer);
+//        outState.putInt("correctAnswers", correctAnswers);
+//        outState.putString("multFolder", multFolder);
+//        outState.putStringArrayList("fileNameList", fileNameList);
+//        outState.putInt("btn1_drawable", (Integer) btn1.getTag());
+//        outState.putIntArray("btn1_state", btn1.getDrawableState());
     }
 
     @Override
@@ -118,13 +147,13 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         unbinder = ButterKnife.bind(this, view);
 
         fileNameList = new ArrayList<>();
-        quizCountriesList = new ArrayList<>();
-        quizRegionsList = new ArrayList<>();
+        quizCartoonsList = new ArrayList<>();
+        quizCartoonsFoldersList = new ArrayList<>();
         random = new SecureRandom();
         handler = new Handler();
         buttons = Arrays.asList(btn1, btn2, btn3, btn4);
         customButtonsName = new ArrayList<>();
-        buttonsImage = new HashMap<>();
+        buttonsText = new HashMap<>();
 
         AudioManager audioManager = (AudioManager) Objects.requireNonNull(getActivity()).getSystemService(AUDIO_SERVICE);
         // Current volume Index of particular stream type.
@@ -133,7 +162,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         // Get the maximum volume index for a particular stream type.
         float maxVolumeIndex = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
-        // Volumn (0 --> 1)
+        // Volume (0 --> 1)
         volume = currentVolumeIndex / maxVolumeIndex;
 
         // Suggests an audio stream whose volume should be changed by
@@ -165,66 +194,66 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
     public void onResume() {
         super.onResume();
         Log.d("debug", "onresume fragment");
-        if (bundle != null) {
-            correctAnswer = bundle.getString("correctAnswer");
-            correctAnswers = bundle.getInt("correctAnswers");
-            switch (correctAnswers) {
-                case 0:
-                    questionNumber.setImageResource(R.drawable.q01);
-                    break;
-                case 1:
-                    questionNumber.setImageResource(R.drawable.q02);
-                    break;
-                case 2:
-                    questionNumber.setImageResource(R.drawable.q03);
-                    break;
-                case 3:
-                    questionNumber.setImageResource(R.drawable.q04);
-                    break;
-                case 4:
-                    questionNumber.setImageResource(R.drawable.q05);
-                    break;
-                case 5:
-                    questionNumber.setImageResource(R.drawable.q06);
-                    break;
-                case 6:
-                    questionNumber.setImageResource(R.drawable.q07);
-                    break;
-                case 7:
-                    questionNumber.setImageResource(R.drawable.q08);
-                    break;
-                case 8:
-                    questionNumber.setImageResource(R.drawable.q09);
-                    break;
-                case 9:
-                    questionNumber.setImageResource(R.drawable.q10);
-                    break;
-            }
-
-            multFolder = bundle.getString("multFolder");
-            AssetManager assets = Objects.requireNonNull(getActivity()).getAssets();
-
-            try (InputStream stream = assets.open(multFolder + "/" + correctAnswer + ".png")) {
-                Drawable mult = Drawable.createFromStream(stream, correctAnswer);
-                cartoonImage.setImageDrawable(mult);
-            } catch (IOException e) {
-                Log.e(TAG, "Ошибка загрузки " + correctAnswer, e);
-            }
-
-            fileNameList = bundle.getStringArrayList("fileNameList");
-
-            btn1.setImageResource(bundle.getInt("btn1_drawable"));
-            int[] btn1ImageState = bundle.getIntArray("btn1_state");
-            btn1.setImageState(btn1ImageState, false);
-            if (btn1ImageState != null && btn1ImageState.length == 2){
-                btn1.setEnabled(true);
-            } else {
-                btn1.setEnabled(false);
-            }
-            Log.d("debug", "bundle.getIntArray(\"btn1_state\") " + Arrays.toString(bundle.getIntArray("btn1_state")));
-        } else {
-            resetQuiz();
-        }
+//        if (bundle != null) {
+//            correctAnswer = bundle.getString("correctAnswer");
+//            correctAnswers = bundle.getInt("correctAnswers");
+//            switch (correctAnswers) {
+//                case 0:
+//                    questionNumber.setImageResource(R.drawable.q01);
+//                    break;
+//                case 1:
+//                    questionNumber.setImageResource(R.drawable.q02);
+//                    break;
+//                case 2:
+//                    questionNumber.setImageResource(R.drawable.q03);
+//                    break;
+//                case 3:
+//                    questionNumber.setImageResource(R.drawable.q04);
+//                    break;
+//                case 4:
+//                    questionNumber.setImageResource(R.drawable.q05);
+//                    break;
+//                case 5:
+//                    questionNumber.setImageResource(R.drawable.q06);
+//                    break;
+//                case 6:
+//                    questionNumber.setImageResource(R.drawable.q07);
+//                    break;
+//                case 7:
+//                    questionNumber.setImageResource(R.drawable.q08);
+//                    break;
+//                case 8:
+//                    questionNumber.setImageResource(R.drawable.q09);
+//                    break;
+//                case 9:
+//                    questionNumber.setImageResource(R.drawable.q10);
+//                    break;
+//            }
+//
+//            multFolder = bundle.getString("multFolder");
+//            AssetManager assets = Objects.requireNonNull(getActivity()).getAssets();
+//
+//            try (InputStream stream = assets.open(multFolder + "/" + correctAnswer + ".png")) {
+//                Drawable mult = Drawable.createFromStream(stream, correctAnswer);
+//                cartoonImage.setImageDrawable(mult);
+//            } catch (IOException e) {
+//                Log.e(TAG, "Ошибка загрузки " + correctAnswer, e);
+//            }
+//
+//            fileNameList = bundle.getStringArrayList("fileNameList");
+//
+//            btn1.setImageResource(bundle.getInt("btn1_drawable"));
+//            int[] btn1ImageState = bundle.getIntArray("btn1_state");
+//            btn1.setImageState(btn1ImageState, false);
+//            if (btn1ImageState != null && btn1ImageState.length == 2){
+//                btn1.setEnabled(true);
+//            } else {
+//                btn1.setEnabled(false);
+//            }
+//            Log.d("debug", "bundle.getIntArray(\"btn1_state\") " + Arrays.toString(bundle.getIntArray("btn1_state")));
+//        } else {
+        resetQuiz();
+//        }
     }
 
     @Override
@@ -241,23 +270,40 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         fileNameList.clear();
         correctAnswers = 0;
         totalGuesses = 0;
-        quizCountriesList.clear();
-        quizRegionsList.clear();
-        buttonsImage.clear();
+        quizCartoonsList.clear();
+        quizCartoonsFoldersList.clear();
+        buttonsText.clear();
         new ImagesForQuiz(getActivity(), MainActivityFragment.this).execute();
+    }
+
+    @OnTouch({R.id.btn1_layout, R.id.btn2_layout, R.id.btn3_layout, R.id.btn4_layout})
+    boolean onTouch(View v, MotionEvent event) {
+        if (v.isEnabled()) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    v.startAnimation(out);
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    v.startAnimation(in);
+                    v.clearAnimation();
+                    break;
+            }
+        }
+        return false;
     }
 
     private void initArrays(Result result) {
         fileNameList = result.fileNameListBackground;
-        quizCountriesList = result.quizCountriesListBackground;
-        quizRegionsList = result.quizRegionsListBackground;
+        quizCartoonsList = result.quizCartoonsListBackground;
+        quizCartoonsFoldersList = result.quizCartoonsFoldersListBackground;
 
         loadNextMult();
     }
 
     private void loadNextMult() {
-        String nextImage = quizCountriesList.remove(0);
-        correctAnswer = nextImage;
+        resetImageButtons();
+        correctAnswer = quizCartoonsList.remove(0);
 
         switch (correctAnswers) {
             case 0:
@@ -292,18 +338,17 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                 break;
         }
 
-        multFolder = nextImage.substring(0, nextImage.indexOf('-'));
+        multFolder = correctAnswer.substring(0, correctAnswer.indexOf('-'));
         Log.d("debug", "multFolder = " + multFolder);
 
         AssetManager assets = Objects.requireNonNull(getActivity()).getAssets();
 
-        try (InputStream stream = assets.open(multFolder + "/" + nextImage + ".png")) {
-            Drawable mult = Drawable.createFromStream(stream, nextImage);
+        try (InputStream stream = assets.open(multFolder + "/" + correctAnswer + ".png")) {
+            Drawable mult = Drawable.createFromStream(stream, correctAnswer);
             cartoonImage.setImageDrawable(mult);
-
             animate(false);
         } catch (IOException e) {
-            Log.e(TAG, "Ошибка загрузки " + nextImage, e);
+            Log.e(TAG, "Ошибка загрузки " + correctAnswer, e);
         }
 
         Collections.shuffle(fileNameList);
@@ -321,43 +366,44 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
             int lastIndex = customButtonName.lastIndexOf('-');
             String nameButton = customButtonName.substring(0, lastIndex);
 
-            if (customButtonsName.contains(nameButton) || nameButton.contains(correctAnswer.substring(0, correctAnswer.lastIndexOf('-')))) {
+            if (customButtonsName.contains(nameButton) || nameButton.contains(this.correctAnswer.substring(0, this.correctAnswer.lastIndexOf('-')))) {
                 continue;
             }
 
             customButtonsName.add(nameButton);
-            String customButtonSelector = "selector_" + nameButton.toLowerCase();
-            ImageView imageView = buttons.get(k);
-            int imageResource = getResId(customButtonSelector);
-            imageView.setImageResource(imageResource);
-            imageView.setTag(imageResource);
-            buttonsImage.put(imageView, nameButton);
+//            String customButtonSelector = "selector_" + nameButton.toLowerCase();
+            TextView textView = buttons.get(k);
+//            int imageResource = getResId(customButtonSelector);
+//            imageView.setImageResource(imageResource);
+//            imageView.setTag(imageResource);
+            buttonsText.put(textView, nameButton);
             k++;
         }
 
         int correctAnswerButtonNumber = random.nextInt(4);
         int lastIndex = correctAnswer.lastIndexOf('-');
         String nameButtonCorrect = correctAnswer.substring(0, lastIndex);
-        String correctButtonSelector = "selector_" + nameButtonCorrect.toLowerCase();
-        int imageResourceCorrect = getResId(correctButtonSelector);
-        ImageView imageViewCorrect = buttons.get(correctAnswerButtonNumber);
-        imageViewCorrect.setImageResource(imageResourceCorrect);
-        imageViewCorrect.setTag(imageResourceCorrect);
-        buttonsImage.put(imageViewCorrect, nameButtonCorrect);
+//        String correctButtonSelector = "selector_" + nameButtonCorrect.toLowerCase();
+//        int imageResourceCorrect = getResId(correctButtonSelector);
+        TextView textViewCorrect = buttons.get(correctAnswerButtonNumber);
+        textViewCorrect.setText("");
+//        imageViewCorrect.setImageResource(imageResourceCorrect);
+//        imageViewCorrect.setTag(imageResourceCorrect);
+        buttonsText.put(textViewCorrect, nameButtonCorrect);
     }
 
     private void enableButtons() {
-        btn1.setEnabled(true);
-        btn2.setEnabled(true);
-        btn3.setEnabled(true);
-        btn4.setEnabled(true);
+        disable(btn1_layout, false);
+        disable(btn2_layout, false);
+        disable(btn3_layout, false);
+        disable(btn4_layout, false);
     }
 
     private void disableButtons() {
-        btn1.setEnabled(false);
-        btn2.setEnabled(false);
-        btn3.setEnabled(false);
-        btn4.setEnabled(false);
+        disable(btn1_layout, true);
+        disable(btn2_layout, true);
+        disable(btn3_layout, true);
+        disable(btn4_layout, true);
     }
 
     private void animate(boolean animateOut) {
@@ -405,14 +451,28 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         return totalGuesses;
     }
 
-    @OnClick({R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4})
-    void onClick(View view) {
-        ImageView imageView = (ImageView) view;
+    @OnClick({R.id.btn1_layout, R.id.btn2_layout, R.id.btn3_layout, R.id.btn4_layout})
+    void onClick(FrameLayout view) {
+        TextView textView;
+        switch (view.getId()) {
+            case R.id.btn1_layout:
+                textView = btn1;
+                break;
+            case R.id.btn2_layout:
+                textView = btn2;
+                break;
+            case R.id.btn3_layout:
+                textView = btn3;
+                break;
+            default:
+                textView = btn4;
+                break;
+        }
         ++totalGuesses;
         String rightAnswer = String.valueOf(correctAnswer.subSequence(0, correctAnswer.lastIndexOf('-')));
         String nameOfClickedButton = "";
-        if (buttonsImage.containsKey(imageView)) {
-            nameOfClickedButton = buttonsImage.get(imageView);
+        if (buttonsText.containsKey(textView)) {
+            nameOfClickedButton = buttonsText.get(textView);
         }
         if (nameOfClickedButton != null) {
             Log.d("debug", "nameOfClickedButton " + nameOfClickedButton);
@@ -421,7 +481,8 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                 playSound(soundIDYes);
                 ++correctAnswers;
                 Log.d("debug", "dfdfdfdf " + "btn_yes_" + nameOfClickedButton);
-                imageView.setImageResource(getResId("btn_yes__" + nameOfClickedButton));
+                setYesImage(view);
+                textView.setText("угадал блин");
 
                 disableButtons();
 
@@ -440,7 +501,6 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                     AlertDialog alert = builder.create();
                     //Set the dialog to not focusable (makes navigation ignore us adding the window)
                     Objects.requireNonNull(alert.getWindow()).setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-
                     //Show the dialog!
                     alert.show();
                     //Set the dialog to immersive
@@ -454,8 +514,9 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                 }
             } else {
                 playSound(soundIDNo);
-                ((ImageView) view).setImageResource(getResId("btn_disabled__" + nameOfClickedButton));
-                imageView.setEnabled(false); // disable incorrect answer
+                disable(view, true);
+//                ((ImageView) view).setImageResource(getResId("btn_disabled__" + nameOfClickedButton));
+//                imageView.setEnabled(false); // disable incorrect answer
             }
         }
     }
@@ -473,6 +534,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
             this.finishedListener = finishedListener;
         }
 
+        @SuppressLint("InflateParams")
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -509,10 +571,10 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         @Override
         protected Result doInBackground(Void... voids) {
             ArrayList<String> fileNameListBackground = new ArrayList<>();
-            List<String> quizCountriesListBackground = new ArrayList<>();
-            List<String> quizRegionsListBackground = new ArrayList<>();
+            List<String> quizCartoonsListBackground = new ArrayList<>();
+            List<String> quizCartoonsFoldersListBackground = new ArrayList<>();
 
-            Set<String> regionsSet = new HashSet<>(Arrays.asList(Objects.requireNonNull(weakActivity.get()).getResources().getStringArray(R.array.regions_list)));
+            Set<String> regionsSet = new HashSet<>(Arrays.asList(Objects.requireNonNull(weakActivity.get()).getResources().getStringArray(R.array.cartoons_list)));
 
             AssetManager assets = Objects.requireNonNull(weakActivity.get()).getAssets();
 
@@ -539,26 +601,36 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                 int randomIndex = random.nextInt(multCount);
                 String fileName = fileNameListBackground.get(randomIndex);
                 String quizRegion = String.valueOf(fileName.subSequence(0, fileName.lastIndexOf('-')));
-                if (!quizRegionsListBackground.contains(quizRegion)) {
-                    quizCountriesListBackground.add(fileName);
-                    quizRegionsListBackground.add(quizRegion);
+                if (!quizCartoonsFoldersListBackground.contains(quizRegion)) {
+                    quizCartoonsListBackground.add(fileName);
+                    quizCartoonsFoldersListBackground.add(quizRegion);
                     ++multCounter;
                 }
             }
-            return new Result(fileNameListBackground, quizCountriesListBackground, quizRegionsListBackground);
+//            for (int i = 0; i < quizCartoonsListBackground.size(); i++){
+//                Log.d("debug", "quizCartoonsListBackground " + i + " = " + quizCartoonsListBackground.get(i));
+//            }
+//            for (int i = 0; i < quizCartoonsFoldersListBackground.size(); i++){
+//                Log.d("debug", "quizCartoonsFoldersListBackground " + i + " = " + quizCartoonsFoldersListBackground.get(i));
+//            }
+//            for (int i = 0; i < fileNameListBackground.size(); i++){
+//                Log.d("debug", "fileNameListBackground " + i + " = " + fileNameListBackground.get(i));
+//            }
+            return new Result(fileNameListBackground, quizCartoonsListBackground, quizCartoonsFoldersListBackground);
         }
     }
 
     static class Result {
         ArrayList<String> fileNameListBackground;
-        List<String> quizCountriesListBackground;
-        List<String> quizRegionsListBackground;
+        List<String> quizCartoonsListBackground;
+        List<String> quizCartoonsFoldersListBackground;
 
-        Result(ArrayList<String> fileNameListBackground, List<String> quizCountriesListBackground, List<String> quizRegionsListBackground) {
+        Result(ArrayList<String> fileNameListBackground, List<String> quizCartoonsListBackground, List<String> quizCartoonsFoldersListBackground) {
             this.fileNameListBackground = fileNameListBackground;
-            this.quizCountriesListBackground = quizCountriesListBackground;
-            this.quizRegionsListBackground = quizRegionsListBackground;
+            this.quizCartoonsListBackground = quizCartoonsListBackground;
+            this.quizCartoonsFoldersListBackground = quizCartoonsFoldersListBackground;
         }
+
     }
 
     @Override
@@ -569,6 +641,45 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
     private void playSound(int soundID) {
         if (loaded) {
             soundPool.play(soundID, volume, volume, 1, 0, 1f);
+        }
+    }
+
+    private void disable(FrameLayout layout, boolean isDisable) {
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            child.setEnabled(!isDisable);
+        }
+        layout.setEnabled(!isDisable);
+    }
+
+    private void setYesImage(FrameLayout layout) {
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if (child instanceof ImageView)
+                ((ImageView) child).setImageResource(R.drawable.btn_yes);
+        }
+    }
+
+    private void resetImageButtons() {
+        for (int i = 0; i < btn1_layout.getChildCount(); i++) {
+            View child = btn1_layout.getChildAt(i);
+            if (child instanceof ImageView)
+                ((ImageView) child).setImageResource(R.drawable.btn_selector);
+        }
+        for (int i = 0; i < btn2_layout.getChildCount(); i++) {
+            View child = btn2_layout.getChildAt(i);
+            if (child instanceof ImageView)
+                ((ImageView) child).setImageResource(R.drawable.btn_selector);
+        }
+        for (int i = 0; i < btn3_layout.getChildCount(); i++) {
+            View child = btn3_layout.getChildAt(i);
+            if (child instanceof ImageView)
+                ((ImageView) child).setImageResource(R.drawable.btn_selector);
+        }
+        for (int i = 0; i < btn4_layout.getChildCount(); i++) {
+            View child = btn4_layout.getChildAt(i);
+            if (child instanceof ImageView)
+                ((ImageView) child).setImageResource(R.drawable.btn_selector);
         }
     }
 }
