@@ -1,11 +1,12 @@
 package ru.goodibunakov.cartoonquiz;
 
+import static android.content.Context.AUDIO_SERVICE;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -17,8 +18,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.transition.Explode;
-import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -28,7 +27,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateOvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -36,7 +34,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
@@ -53,21 +50,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTouch;
-import butterknife.Unbinder;
 
-import static android.content.Context.AUDIO_SERVICE;
-
-
-public class MainActivityFragment extends Fragment implements LoadingTaskFinishedListener {
+public class MainActivityFragment2 extends Fragment implements LoadingTaskFinishedListener {
 
     private static final String TAG = "cartoon";
     private static final int CARTOONS_IN_QUIZ = 10;
-
-    private Unbinder unbinder;
 
     private static ArrayList<String> fileNameList;
     private static List<String> quizCartoonsList;
@@ -90,31 +77,21 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
 
     private Animation in, out;
 
-    @BindView(R.id.question_number)
+
     ImageView questionNumber;
-    @BindView(R.id.cartoon_image)
     ImageView cartoonImage;
-    @BindView(R.id.btn1_text)
     TextView btn1;
-    @BindView(R.id.btn2_text)
     TextView btn2;
-    @BindView(R.id.btn3_text)
     TextView btn3;
-    @BindView(R.id.btn4_text)
     TextView btn4;
-    @BindView(R.id.btn1_layout)
     FrameLayout btn1_layout;
-    @BindView(R.id.btn2_layout)
     FrameLayout btn2_layout;
-    @BindView(R.id.btn3_layout)
     FrameLayout btn3_layout;
-    @BindView(R.id.btn4_layout)
     FrameLayout btn4_layout;
-    @BindView(R.id.quiz_relative_layout)
     RelativeLayout relativeLayout;
 
 
-    public MainActivityFragment() {
+    public MainActivityFragment2() {
         // Required empty public constructor
     }
 
@@ -144,7 +121,17 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         bundle = savedInstanceState;
 
         View view = inflater.inflate(R.layout.fragment_main, container, false);
-        unbinder = ButterKnife.bind(this, view);
+        questionNumber = view.findViewById(R.id.question_number);
+        cartoonImage = view.findViewById(R.id.cartoon_image);
+        btn1 = view.findViewById(R.id.btn1_text);
+        btn2 = view.findViewById(R.id.btn2_text);
+        btn3 = view.findViewById(R.id.btn3_text);
+        btn4 = view.findViewById(R.id.btn4_text);
+        btn1_layout = view.findViewById(R.id.btn1_layout);
+        btn2_layout = view.findViewById(R.id.btn2_layout);
+        btn3_layout = view.findViewById(R.id.btn3_layout);
+        btn4_layout = view.findViewById(R.id.btn4_layout);
+        relativeLayout = view.findViewById(R.id.quiz_relative_layout);
 
         fileNameList = new ArrayList<>();
         quizCartoonsList = new ArrayList<>();
@@ -155,7 +142,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         customButtonsName = new ArrayList<>();
         buttonsText = new HashMap<>();
 
-        AudioManager audioManager = (AudioManager) Objects.requireNonNull(getActivity()).getSystemService(AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) requireActivity().getSystemService(AUDIO_SERVICE);
         // Current volume Index of particular stream type.
         float currentVolumeIndex = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
@@ -167,14 +154,14 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
 
         // Suggests an audio stream whose volume should be changed by
         // the hardware volume controls.
-        getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        requireActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // For Android SDK >= 21
         if (Build.VERSION.SDK_INT >= 21) {
             AudioAttributes audioAttrib = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_GAME)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build();
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
 
             SoundPool.Builder builder = new SoundPool.Builder();
             builder.setAudioAttributes(audioAttrib).setMaxStreams(MAX_STREAMS);
@@ -259,7 +246,6 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        unbinder.unbind();
         if (soundPool != null) {
             soundPool.release();
             soundPool = null;
@@ -273,10 +259,10 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         quizCartoonsList.clear();
         quizCartoonsFoldersList.clear();
         buttonsText.clear();
-        new ImagesForQuiz(getActivity(), MainActivityFragment.this).execute();
+        new ImagesForQuiz(getActivity(), MainActivityFragment2.this).execute();
     }
 
-    @OnTouch({R.id.btn1_layout, R.id.btn2_layout, R.id.btn3_layout, R.id.btn4_layout})
+
     boolean onTouch(View v, MotionEvent event) {
         if (v.isEnabled()) {
             switch (event.getAction()) {
@@ -341,7 +327,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         multFolder = correctAnswer.substring(0, correctAnswer.indexOf('-'));
         Log.d("debug", "multFolder = " + multFolder);
 
-        AssetManager assets = Objects.requireNonNull(getActivity()).getAssets();
+        AssetManager assets = requireActivity().getAssets();
 
         try (InputStream stream = assets.open(multFolder + "/" + correctAnswer + ".png")) {
             Drawable mult = Drawable.createFromStream(stream, correctAnswer);
@@ -451,7 +437,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
         return totalGuesses;
     }
 
-    @OnClick({R.id.btn1_layout, R.id.btn2_layout, R.id.btn3_layout, R.id.btn4_layout})
+
     void onClick(FrameLayout view) {
         TextView textView;
         switch (view.getId()) {
@@ -489,15 +475,12 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                 if (correctAnswers == CARTOONS_IN_QUIZ) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle("Игра закончена")
-                            .setMessage("ура!")
-                            .setCancelable(false)
-                            .setPositiveButton("Заново", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    totalGuesses = 0;
-                                    resetQuiz();
-                                }
-                            });
+                        .setMessage("ура!")
+                        .setCancelable(false)
+                        .setPositiveButton("Заново", (dialog, which) -> {
+                            totalGuesses = 0;
+                            resetQuiz();
+                        });
                     AlertDialog alert = builder.create();
                     //Set the dialog to not focusable (makes navigation ignore us adding the window)
                     Objects.requireNonNull(alert.getWindow()).setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
@@ -505,12 +488,12 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
                     alert.show();
                     //Set the dialog to immersive
                     alert.getWindow().getDecorView().setSystemUiVisibility(
-                            Objects.requireNonNull(getActivity()).getWindow().getDecorView().getSystemUiVisibility());
+                        requireActivity().getWindow().getDecorView().getSystemUiVisibility());
                     //Clear the not focusable flag from the window
                     alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
                 } else {
                     handler.postDelayed(
-                            () -> animate(true), 1200);
+                        () -> animate(true), 1200);
                 }
             } else {
                 playSound(soundIDNo);
@@ -544,7 +527,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
             }
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setView(activity.getLayoutInflater().inflate(R.layout.dialog_loading, null))
-                    .setCancelable(false);
+                .setCancelable(false);
             alert = builder.create();
             Objects.requireNonNull(alert.getWindow()).setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             //Set the dialog to not focusable (makes navigation ignore us adding the window)
@@ -552,7 +535,7 @@ public class MainActivityFragment extends Fragment implements LoadingTaskFinishe
             //Set the dialog to immersive
             alert.show();
             alert.getWindow().getDecorView().setSystemUiVisibility(
-                    Objects.requireNonNull(weakActivity.get()).getWindow().getDecorView().getSystemUiVisibility());
+                Objects.requireNonNull(weakActivity.get()).getWindow().getDecorView().getSystemUiVisibility());
             //Clear the not focusable flag from the window
             alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         }
